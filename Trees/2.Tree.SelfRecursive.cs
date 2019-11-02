@@ -8,18 +8,31 @@ namespace Metaprogramming.Trees.Stage2
     public interface ITraverseStrategy
     {
         void Traverse<TTraverseStrategy>(Node node) where TTraverseStrategy : struct, ITraverseStrategy;
-    }    
+    }
 
     public struct InfixStrategy : ITraverseStrategy
     {
         public void Traverse<TTraverseStrategy>(Node node) where TTraverseStrategy : struct, ITraverseStrategy
-        {           
+        {
             if (node == null)
                 return;
 
             TTraverseStrategy strategy = default;
             strategy.Traverse<TTraverseStrategy>(node.Left);
             strategy.Traverse<TTraverseStrategy>(node.Right);
+        }
+    }
+
+    public struct PostfixStrategy : ITraverseStrategy
+    {
+        public void Traverse<TTraverseStrategy>(Node node) where TTraverseStrategy : struct, ITraverseStrategy
+        {
+            if (node == null)
+                return;
+
+            TTraverseStrategy strategy = default;
+            strategy.Traverse<TTraverseStrategy>(node.Right);
+            strategy.Traverse<TTraverseStrategy>(node.Left);
         }
     }
 
