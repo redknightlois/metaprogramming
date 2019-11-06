@@ -75,11 +75,58 @@ namespace Metaprogramming.Matrix.Stage1
         }
     }
 
+    public class InterfaceMatrix
+    {
+        protected IStorageLayout<float> _storage;
+
+        public InterfaceMatrix(int xSize, int ySize)
+        {
+            _storage = new RowFirst<float>();
+            _storage.Initialize(xSize, ySize);
+        }
+
+        public float this[int x, int y]
+        {
+            get { return _storage.Get(x, y); }
+            set { _storage.Set(x, y, value); }
+        }
+    }
+
+    public class NakedRowMatrix
+    {
+        protected readonly int _xSize;
+        protected readonly int _ySize;
+        protected float[] _storage;
+
+        public NakedRowMatrix(int xSize, int ySize)
+        {
+            this._xSize = xSize;
+            this._ySize = ySize;
+            _storage = new float[xSize * ySize];
+        }
+
+        public float this[int x, int y]
+        {
+            get 
+            {
+                int idx = x * _ySize + y;
+                return _storage[idx];
+            }
+            set 
+            {
+                int idx = x * _ySize + y;
+                _storage[idx] = value; 
+            }
+        }
+    }
+
     [DisassemblyDiagnoser]
     public class MatrixSimpleBenchmark
     {
         public const int Size = 4096;
 
+        NakedRowMatrix _nakedMatrix = new NakedRowMatrix(Size, Size);
+        InterfaceMatrix _baseRowMatrix = new InterfaceMatrix(Size, Size);
         Matrix<RowFirst<float>, float> _rowMatrix = new Matrix<RowFirst<float>, float>(Size, Size);
         Matrix<ColumnFirst<float>, float> _columnMatrix = new Matrix<ColumnFirst<float>, float>(Size, Size);
         float[] _floatArray = new float[Size * Size];
@@ -97,6 +144,22 @@ namespace Metaprogramming.Matrix.Stage1
             for (int x = 0; x < Size; x++)
                 for (int y = 0; y < Size; y++)
                     _floatArray[x * Size + y] = x + y;
+        }
+
+        [Benchmark]
+        public void InterfaceRowMatrix()
+        {
+            for (int x = 0; x < Size; x++)
+                for (int y = 0; y < Size; y++)
+                    _baseRowMatrix[x, y] = x + y;
+        }
+
+        [Benchmark]
+        public void NakedMatrixArray()
+        {
+            for (int x = 0; x < Size; x++)
+                for (int y = 0; y < Size; y++)
+                    _nakedMatrix[x, y] = x + y;
         }
 
         [Benchmark]
