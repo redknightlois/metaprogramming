@@ -14,6 +14,15 @@ namespace Metaprogramming.Unroll
         float[] _floatArray = new float[Size];
 
         [Benchmark]
+        public void Baseline()
+        {
+            for (int i = 0; i < _floatArray.Length; i++)
+            {
+                _floatArray[i] = i;
+            }
+        }
+
+        [Benchmark]
         public void BaselineUnrolled8()
         {
             for (int i = 0; i < _floatArray.Length; i += 8)
