@@ -83,6 +83,13 @@ namespace Metaprogramming.Matrix.Stage1
         Matrix<RowFirst<float>, float> _rowMatrix = new Matrix<RowFirst<float>, float>(Size, Size);
         Matrix<ColumnFirst<float>, float> _columnMatrix = new Matrix<ColumnFirst<float>, float>(Size, Size);
         float[] _floatArray = new float[Size * Size];
+        int _xSize;
+
+        [GlobalSetup]
+        public void Setup()
+        {
+            this._xSize = Size;
+        }
 
         [Benchmark]
         public void NakedRowArray()
@@ -90,6 +97,15 @@ namespace Metaprogramming.Matrix.Stage1
             for (int x = 0; x < Size; x++)
                 for (int y = 0; y < Size; y++)
                     _floatArray[x * Size + y] = x + y;
+        }
+
+        [Benchmark]
+        public void NakedRowSizeNonConstantArray()
+        {
+            int size = this._xSize;
+            for (int x = 0; x < size; x++)
+                for (int y = 0; y < size; y++)
+                    _floatArray[x * size + y] = x + y;
         }
 
         [Benchmark]
